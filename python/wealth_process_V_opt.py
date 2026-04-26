@@ -174,6 +174,23 @@ class wealth_process:
         else:
             Var = l * b**2
         return(Var)
+    
+    def E_Var_no_ruin(self, x, t):
+        l, b, c, n = self.l, self.b, self.c, self.n
+        if n >0:
+            muk, bk, pk = self.muk, self.bk, self.pk
+            mu = sum(muk)
+            EB, EB2 = pk@bk, pk@bk**2
+            f = lambda r: -c*r + mu * (np.exp(r * bk)@pk - 1) - 1/t
+            r_opt = sc.optimize.root_scalar(f, bracket=[-100, -1e-6], method='bisect').root
+            V1 = x + (mu * EB - c) * t * (1 - np.exp(r_opt * x))
+            V2 = t * (mu * EB2 +  2 * t * (mu * EB -c)**2) * (1- np.exp(r_opt * x))  + x**2 +  2 * t * (mu * EB - c) * x
+        else:
+            rho = np.real(-sc.special.lambertw(-l * b / c * np.exp( -(1 + t * l) * b / c / t)) / b   - (1 + t * l)  / c / t) 
+            V1 = x + (l * b - c) * t * (1 - np.exp(rho * x)) 
+            V2 = t * (l * b**2 +  2*t * (l * b -c)**2) * (1- np.exp(rho * x))  + x**2 +  2 * t * (l*b - c)*x
+    
+        return(V1, V2 - V1**2)
 
     def ruin_proba(self, x):
         l, b, c, n = self.l, self.b, self.c, self.n
