@@ -190,7 +190,7 @@ class wealth_process:
             V1 = x + (l * b - c) * t * (1 - np.exp(rho * x)) 
             V2 = t * (l * b**2 +  2*t * (l * b -c)**2) * (1- np.exp(rho * x))  + x**2 +  2 * t * (l*b - c)*x
     
-        return(V1, V2 - V1**2)
+        return(V1, V2)
 
     def ruin_proba(self, x):
         l, b, c, n = self.l, self.b, self.c, self.n
