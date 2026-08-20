@@ -278,7 +278,7 @@ class wealth_process:
             
         
     
-    def V(self, x, q):
+    def V(self, x, q, acc = 0.1):
         l, b, c, n = self.l, self.b, self.c, self.n
         if n >0:
             wk, muk, bk, pk = self.wk, self.muk, self.bk, self.pk
@@ -341,6 +341,8 @@ class wealth_process:
                 a1 += ϵ
             a_ast = sc.optimize.root_scalar(obj, bracket=[0, a1], method='brentq').root
         else:
+            if c > l * b:
+                return(x, x)
             psi = lambda θ : θ * c + l * (np.exp(-b * θ) - 1)
             phi = lambda q : np.real(sc.special.lambertw(-l * b / c *np.exp(- (q + l) * b / c)) / b  + (q + l) / c)
             def Wq(x, q):
@@ -354,9 +356,11 @@ class wealth_process:
             def v(x, a, q):
                 return(- kap(a-x) + Zq(a-x, q) / Zq(a, q) * kap(a))
             obj = lambda a: barZq(a, q)+ psi_prime(0) / q
-            a1, ϵ = 0, 1
+            
+            a1 = 0
+            
             while obj(a1) < 0:
-                a1 += ϵ
+                a1 += acc
             a_ast = sc.optimize.root_scalar(obj, bracket=[0, a1], method='brentq').root
             
             
